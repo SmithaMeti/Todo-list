@@ -58,6 +58,11 @@ function App() {
     }
   };
 
+  const handleCancel = () => {
+    setEditText("");
+    setEditingIndex(null);
+  };
+
   const clearIt = () => {
     setTodo([]);
   };
@@ -68,6 +73,13 @@ function App() {
         return { ...item, completed: !item.completed };
       }
       return item;
+    });
+    setTodo(update);
+  };
+
+  const handleMarkAll = () => {
+    const update = todo.map((item) => {
+      return { ...item, completed: true };
     });
     setTodo(update);
   };
@@ -94,6 +106,12 @@ function App() {
           name="items"
         />
         <button onClick={handleAdd}>add to the list</button>
+        <br />
+        {todo.length > 2 ? (
+          <button onClick={handleMarkAll}>Mark All</button>
+        ) : (
+          ""
+        )}
         <ul>
           {todo.map((item, index) => {
             const match = item.text
@@ -116,7 +134,7 @@ function App() {
                       onChange={handleEditText}
                     />
                     <button onClick={() => handleSaveEdit(index)}>Save</button>
-                    <button>Cancel</button>
+                    <button onClick={handleCancel}>Cancel</button>
                   </>
                 ) : (
                   <p key={index}>
@@ -130,7 +148,9 @@ function App() {
                       <span className={item.completed ? "completed-text" : ""}>
                         {item.text}
                       </span>
-                      <button onClick={() => editItem(index)}>edit</button>
+                      {!item.completed && (
+                        <button onClick={() => editItem(index)}>edit</button>
+                      )}
                       <button onClick={() => delItem(index)}>delete</button>
                     </div>
                   </p>
@@ -139,7 +159,7 @@ function App() {
             );
           })}
         </ul>
-        <button onClick={clearIt}>Clear All</button>
+        {todo.length > 2 ? <button onClick={clearIt}>Clear All</button> : ""}
       </div>
     </>
   );
