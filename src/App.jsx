@@ -23,7 +23,8 @@ function App() {
 
   const handleAdd = () => {
     if (inputText.trim() !== "") {
-      setTodo((prev) => [...prev, { text: inputText, completed: false }]);
+      const now = new Date();
+      setTodo((prev) => [...prev, { text: inputText, completed: false, createdAt: now, updatedAt: now }]);
       setInputText("");
     }
   };
@@ -46,7 +47,7 @@ function App() {
     if (editText.trim() !== "") {
       const update = todo.map((item, index) => {
         if (index === indexToSave) {
-          return { ...item, text: editText };
+          return { ...item, text: editText, updatedAt: new Date() };
         }
         return item;
       });
@@ -83,6 +84,13 @@ function App() {
     });
     setTodo(update);
   };
+
+  const formatTimeStamp = (timeStamp) => {
+    if(!timeStamp)
+      return '';
+    const date = new Date(timeStamp)
+    return date.toLocaleString();
+  }
 
   return (
     <>
@@ -148,6 +156,11 @@ function App() {
                       <span className={item.completed ? "completed-text" : ""}>
                         {item.text}
                       </span>
+                      <div className="timestamps">
+                        {item.createdAt && item.createdAt.getTime() === item.updatedAt.getTime() ? (
+                            <span>Added: {formatTimeStamp(item.createdAt)}</span>
+                        ) :  <span> Edited: {formatTimeStamp(item.updatedAt)}</span> }
+                    </div>
                       {!item.completed && (
                         <button onClick={() => editItem(index)}>edit</button>
                       )}
