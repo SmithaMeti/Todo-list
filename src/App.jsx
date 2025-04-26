@@ -1,0 +1,148 @@
+import { useEffect, useState } from "react";
+import "./App.css";
+
+function App() {
+  const [todo, setTodo] = useState([]);
+  const [inputText, setInputText] = useState("");
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editText, setEditText] = useState("");
+  const [search, setSearch] = useState("");
+  const [darkTheme, setDarkTheme] = useState(false);
+
+  useEffect(() => {
+    document.body.className = darkTheme ? "dark-theme" : "light-theme";
+  }, [darkTheme]);
+
+  const toggleTheme = () => {
+    setDarkTheme(!darkTheme);
+  };
+
+  const handle = (e) => {
+    setInputText(e.target.value);
+  };
+
+  const handleAdd = () => {
+    if (inputText.trim() !== "") {
+      setTodo((prev) => [...prev, { text: inputText, completed: false }]);
+      setInputText("");
+    }
+  };
+
+  const delItem = (e) => {
+    const updateTodo = todo.filter((_, index) => index !== e);
+    setTodo(updateTodo);
+  };
+
+  const editItem = (indexToEdit) => {
+    setEditingIndex(indexToEdit);
+    setEditText(todo[indexToEdit].text);
+  };
+
+  const handleEditText = (e) => {
+    setEditText(e.target.value);
+  };
+
+  const handleSaveEdit = (indexToSave) => {
+    if (editText.trim() !== "") {
+      const update = todo.map((item, index) => {
+        if (index === indexToSave) {
+          return { ...item, text: editText };
+        }
+        return item;
+      });
+      setTodo(update);
+      setEditText("");
+      setEditingIndex(null);
+    } else {
+      delItem(indexToSave);
+    }
+  };
+
+  const clearIt = () => {
+    setTodo([]);
+  };
+
+  const handleToggleComplete = (indexToToggle) => {
+    const update = todo.map((item, index) => {
+      if (index === indexToToggle) {
+        return { ...item, completed: !item.completed };
+      }
+      return item;
+    });
+    setTodo(update);
+  };
+
+  return (
+    <>
+      <div className="container">
+        <header>
+          <h2>Todo List</h2>
+          <button onClick={toggleTheme}>{darkTheme ? "☀️" : "🌙"}</button>
+        </header>
+        <input
+          type="text"
+          placeholder="search ur item"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <br />
+        <input
+          type="text"
+          placeholder="Enter ur todolist here"
+          onChange={handle}
+          value={inputText}
+          name="items"
+        />
+        <button onClick={handleAdd}>add to the list</button>
+        <ul>
+          {todo.map((item, index) => {
+            const match = item.text
+              .toLowerCase()
+              .includes(search.toLowerCase());
+
+            if (!match) {
+              return null;
+            }
+            return (
+              <div
+                className={`items ${item.completed ? "completed" : ""}`}
+                key={index}
+              >
+                {editingIndex === index ? (
+                  <>
+                    <input
+                      type="text"
+                      value={editText}
+                      onChange={handleEditText}
+                    />
+                    <button onClick={() => handleSaveEdit(index)}>Save</button>
+                    <button>Cancel</button>
+                  </>
+                ) : (
+                  <p key={index}>
+                    <div>
+                      <input
+                        type="checkbox"
+                        className="done"
+                        onChange={() => handleToggleComplete(index)}
+                        checked={item.completed}
+                      />
+                      <span className={item.completed ? "completed-text" : ""}>
+                        {item.text}
+                      </span>
+                      <button onClick={() => editItem(index)}>edit</button>
+                      <button onClick={() => delItem(index)}>delete</button>
+                    </div>
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </ul>
+        <button onClick={clearIt}>Clear All</button>
+      </div>
+    </>
+  );
+}
+
+export default App;
